@@ -2,8 +2,8 @@
 
 ## Author: Evine Deng
 ## Source: https://github.com/EvineDeng/jd-base
-## Modified： 2021-01-27
-## Version： v3.8.0
+## Modified： 2021-02-03
+## Version： v3.8.1
 
 ## 路径
 ShellDir=${JD_DIR:-$(cd $(dirname $0); pwd)}
