@@ -18,7 +18,8 @@ FileDiy=${ConfigDir}/diy.sh
 FileConfSample=${ShellDir}/sample/config.sh.sample
 ListCron=${ConfigDir}/crontab.list
 #ListCronLxk=${ScriptsDir}/docker/crontab_list.sh
-ListCronLxk=https://gitee.com/lxk0301/jd_docker/tree/master/docker/crontab_list.sh
+wget -q --no-check-certificate https://gitee.com/lxk0301/jd_docker/raw/master/docker/crontab_list.sh -O ${ShellDir}/crontab_list.sh
+ListCronLxk=${ShellDir}/crontab_list.sh
 #ListCronShylocks=${Scripts2Dir}/docker/crontab_list.sh
 ListTask=${LogDir}/task.list
 ListJs=${LogDir}/js.list
