@@ -31,13 +31,6 @@ isTermux=${ANDROID_RUNTIME_ROOT}${ANDROID_ROOT}
 WhichDep=$(grep "/jd-base" "${ShellDir}/.git/config")
 #Scripts2URL=https://github.com/shylocks/Loon
 
-#scripts_base_url=https://jdsharedresourcescdn.azureedge.net/jdresource/   # raw文件的基础网址
-#json_file=lxk0301_gallery.json  #任务订阅文件
-
-#wget -q --no-check-certificate $scripts_base_url$json_file -O $json_file
-
-#jq -r .task[] $json_file | grep -Eo "$scripts_base_url[a-zA-Z0-9\.\/_&=@$%?~#-]*.js" | xargs wget -q --no-check-certificate -c   #更新JS脚本
-
 if [[ ${WhichDep} == *github* ]]; then
   ScriptsURL=https://github.com/LXK9301/jd_scripts
   ShellURL=https://github.com/EvineDeng/jd-base
@@ -59,8 +52,6 @@ function Git_PullShell {
 function Update_Cron {
   if [ -f ${ListCron} ]; then
     perl -i -pe "s|30 8-20/4(.+jd_nian\W*.*)|28 8-20/4,21\1|" ${ListCron} # 修改默认错误的cron
-    #sed -i '/jd\.sh/d' ${ListCron}
-    #jq -r .task[] $json_file | sed 's/\, img-url\=[^ ]*\ enabled\=true//g' | sed 's/\.js\, tag\=[^ ]*//g' | sed 's/https\:\/\/jdsharedresourcescdn\.azureedge\.net\/jdresource\//bash \/home\/myid\/jd\/jd\.sh /g' >> ${ListCron}
     crontab ${ListCron}
   fi
 }
@@ -343,7 +334,8 @@ echo -e "JS脚本目录：${ScriptsDir}\n"
 echo -e "--------------------------------------------------------------\n"
 
 ## 更新shell脚本、检测配置文件版本并将sample/config.sh.sample复制到config目录下
-Git_PullShell && Update_Cron
+#Git_PullShell && Update_Cron
+Git_PullShell
 VerConfSample=$(grep " Version: " ${FileConfSample} | perl -pe "s|.+v((\d+\.?){3})|\1|")
 [ -f ${FileConf} ] && VerConf=$(grep " Version: " ${FileConf} | perl -pe "s|.+v((\d+\.?){3})|\1|")
 if [ ${ExitStatusShell} -eq 0 ]
@@ -391,3 +383,15 @@ if [ "${EnableExtraShell}" = "true" ]; then
     echo -e "${FileDiy} 文件不存在，跳过执行DIY脚本...\n"
   fi
 fi
+
+scripts_base_url=https://jdsharedresourcescdn.azureedge.net/jdresource/
+json_file=lxk0301_gallery.json
+echo '下载最新的任务列表JSON'
+wget -q --no-check-certificate $scripts_base_url$json_file -O $json_file
+echo '从列表中下载各任务'
+jq -r .task[] $json_file | grep -Eo "$scripts_base_url[a-zA-Z0-9\.\/_&=@$%?~#-]*.js" | xargs wget -q --no-check-certificate -c -P scripts/
+echo '更新定时任务'
+sed -i '/jd\.sh/d' ${ListCron}
+jq -r .task[] $json_file | sed 's/\, img-url\=[^ ]*\ enabled\=true//g' | sed 's/\.js\, tag\=[^ ]*//g' | sed 's/https\:\/\/jdsharedresourcescdn\.azureedge\.net\/jdresource\//bash \/home\/myid\/jd\/jd\.sh /g' >>  ${ListCron}
+crontab ${ListCron}
+echo '任务替换成功'
