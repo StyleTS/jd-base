@@ -391,7 +391,7 @@ wget -q --no-check-certificate $scripts_base_url$json_file -O $json_file
 echo '从列表中下载各任务'
 jq -r .task[] $json_file | grep -Eo "$scripts_base_url[a-zA-Z0-9\.\/_&=@$%?~#-]*.js" | xargs wget -q --no-check-certificate -c -P scripts/
 echo '更新定时任务'
-sed -i '/jd\.sh/d' ${ListCron}
-jq -r .task[] $json_file | sed 's/\, img-url\=[^ ]*\ enabled\=true//g' | sed 's/\.js\, tag\=[^ ]*//g' | sed 's/https\:\/\/jdsharedresourcescdn\.azureedge\.net\/jdresource\//bash \/home\/myid\/jd\/jd\.sh /g' >>  ${ListCron}
+#sed -i '/jd\.sh/d' ${ListCron}
+#jq -r .task[] $json_file | sed 's/\, img-url\=[^ ]*\ enabled\=true//g' | sed 's/\.js\, tag\=[^ ]*//g' | sed 's/https\:\/\/jdsharedresourcescdn\.azureedge\.net\/jdresource\//bash \/home\/myid\/jd\/jd\.sh /g' >>  ${ListCron}
 crontab ${ListCron}
 echo '任务替换成功'
