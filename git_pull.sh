@@ -34,7 +34,9 @@ WhichDep=$(grep "/jd-base" "${ShellDir}/.git/config")
 scripts_base_url=https://jdsharedresourcescdn.azureedge.net/jdresource/   # raw文件的基础网址
 json_file=lxk0301_gallery.json  #任务订阅文件
 
-jq -r .task[] $json_file | grep -Eo "$scripts_base_url[a-zA-Z0-9\.\/_&=@$%?~#-]*.js" | xargs wget -q --no-check-certificate -c -P script/   #更新JS脚本
+wget -q --no-check-certificate $scripts_base_url$json_file -O $json_file
+
+jq -r .task[] $json_file | grep -Eo "$scripts_base_url[a-zA-Z0-9\.\/_&=@$%?~#-]*.js" | xargs wget -q --no-check-certificate -c   #更新JS脚本
 
 if [[ ${WhichDep} == *github* ]]; then
   ScriptsURL=https://github.com/LXK9301/jd_scripts
