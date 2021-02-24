@@ -18,7 +18,7 @@ FileDiy=${ConfigDir}/diy.sh
 FileConfSample=${ShellDir}/sample/config.sh.sample
 ListCron=${ConfigDir}/crontab.list
 ListCronLxk=${ScriptsDir}/docker/crontab_list.sh
-ListCronShylocks=${Scripts2Dir}/docker/crontab_list.sh
+#ListCronShylocks=${Scripts2Dir}/docker/crontab_list.sh
 ListTask=${LogDir}/task.list
 ListJs=${LogDir}/js.list
 ListJsAdd=${LogDir}/js-add.list
@@ -29,7 +29,12 @@ ContentDropTask=${ShellDir}/drop_task
 SendCount=${ShellDir}/send_count
 isTermux=${ANDROID_RUNTIME_ROOT}${ANDROID_ROOT}
 WhichDep=$(grep "/jd-base" "${ShellDir}/.git/config")
-Scripts2URL=https://github.com/shylocks/Loon
+#Scripts2URL=https://github.com/shylocks/Loon
+
+scripts_base_url=https://jdsharedresourcescdn.azureedge.net/jdresource/   # raw文件的基础网址
+json_file=lxk0301_gallery.json  #任务订阅文件
+
+jq -r .task[] $json_file | grep -Eo "$scripts_base_url[a-zA-Z0-9\.\/_&=@$%?~#-]*.js" | xargs wget -q --no-check-certificate -c -P script/   #更新JS脚本
 
 if [[ ${WhichDep} == *github* ]]; then
   ScriptsURL=https://github.com/LXK9301/jd_scripts
@@ -51,7 +56,9 @@ function Git_PullShell {
 ## 更新crontab
 function Update_Cron {
   if [ -f ${ListCron} ]; then
-    perl -i -pe "s|30 8-20/4(.+jd_nian\W*.*)|28 8-20/4,21\1|" ${ListCron} # 修改默认错误的cron
+#    perl -i -pe "s|30 8-20/4(.+jd_nian\W*.*)|28 8-20/4,21\1|" ${ListCron} # 修改默认错误的cron
+    sed -i '/jd\.sh/d' ${ListCron}
+    jq -r .task[] $json_file | sed 's/\, img-url\=[^ ]*\ enabled\=true//g' | sed 's/\.js\, tag\=[^ ]*//g' | sed 's/https\:\/\/jdsharedresourcescdn\.azureedge\.net\/jdresource\//bash \/home\/myid\/jd\/jd\.sh /g' >> ${ListCron}
     crontab ${ListCron}
   fi
 }
