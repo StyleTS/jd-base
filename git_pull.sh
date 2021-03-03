@@ -149,7 +149,7 @@ function Diff_Cron {
     else
       grep "${ShellDir}/" ${ListCron} | grep -E " j[drx]_\w+" | perl -pe "s|.+ (j[drx]_\w+).*|\1|" | uniq | sort > ${ListTask}
     fi
-    cat ${ListCronLxk} ${ListCronShylocks} | grep -E "j[drx]_\w+\.js" | perl -pe "s|.+(j[drx]_\w+)\.js.+|\1|" | sort > ${ListJs}
+    cat ${ListCronLxk} | grep -E "j[drx]_\w+\.js" | perl -pe "s|.+(j[drx]_\w+)\.js.+|\1|" | sort > ${ListJs}
     grep -vwf ${ListTask} ${ListJs} > ${ListJsAdd}
     grep -vwf ${ListJs} ${ListTask} > ${ListJsDrop}
   else
@@ -298,7 +298,7 @@ function Add_Cron {
       then
         echo "4 0,9 * * * bash ${ShellJd} ${Cron}" >> ${ListCron}
       else
-        cat ${ListCronLxk} ${ListCronShylocks} | grep -E "\/${Cron}\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1bash ${ShellJd} \2|" >> ${ListCron}
+        cat ${ListCronLxk} | grep -E "\/${Cron}\." | perl -pe "s|(^.+)node */scripts/(j[drx]_\w+)\.js.+|\1bash ${ShellJd} \2|" >> ${ListCron}
       fi
     done
 
@@ -391,9 +391,9 @@ json_file=lxk0301_gallery.json
 echo '下载最新的任务列表JSON'
 wget -q --no-check-certificate $scripts_base_url$json_file -O $json_file
 echo '从列表中下载各任务'
-jq -r .task[] $json_file | grep -Eo "$scripts_base_url[a-zA-Z0-9\.\/_&=@$%?~#-]*.js" | xargs wget -q --no-check-certificate -P scripts/
+jq -r .task[] $json_file | grep -Eo "$scripts_base_url[a-zA-Z0-9\.\/_&=@$%?~#-]*.js" | xargs wget -d -N --no-check-certificate -P /home/myid/jd/scripts/
 echo '更新定时任务'
-#sed -i '/jd\.sh/d' ${ListCron}
-#jq -r .task[] $json_file | sed 's/\, img-url\=[^ ]*\ enabled\=true//g' | sed 's/\.js\, tag\=[^ ]*//g' | sed 's/https\:\/\/jdsharedresourcescdn\.azureedge\.net\/jdresource\//bash \/home\/myid\/jd\/jd\.sh /g' >>  ${ListCron}
+sed -i '/jd\.sh/d' ${ListCron}
+jq -r .task[] $json_file | sed 's/\, img-url\=[^ ]*\ enabled\=true//g' | sed 's/\.js\, tag\=[^ ]*//g' | sed 's/https\:\/\/jdsharedresourcescdn\.azureedge\.net\/jdresource\//bash \/home\/myid\/jd\/jd\.sh /g' >>  ${ListCron}
 crontab ${ListCron}
 echo '任务替换成功'
